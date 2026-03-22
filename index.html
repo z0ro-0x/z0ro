@@ -285,6 +285,48 @@ footer{position:relative;z-index:10;border-top:1px solid var(--bdr);padding:3rem
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
 .reveal.in{opacity:1;transform:none}
 
+/* ══ SCROLL ANIMATIONS ══ */
+.sa{opacity:0;transform:translateY(50px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.sa.go{opacity:1;transform:none}
+.sa-l{opacity:0;transform:translateX(-60px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.sa-l.go{opacity:1;transform:none}
+.sa-r{opacity:0;transform:translateX(60px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.sa-r.go{opacity:1;transform:none}
+.sa-s{opacity:0;transform:scale(.9);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.sa-s.go{opacity:1;transform:none}
+.sd1{transition-delay:.08s}.sd2{transition-delay:.18s}.sd3{transition-delay:.28s}.sd4{transition-delay:.38s}.sd5{transition-delay:.48s}.sd6{transition-delay:.58s}
+/* scroll progress bar */
+#scroll-prog{position:fixed;top:0;left:0;right:0;height:2px;z-index:9999;background:linear-gradient(90deg,var(--cyan),var(--purp));transform-origin:left;transform:scaleX(0);transition:transform .05s linear}
+/* beam divider */
+.beam-div{position:relative;height:1px;background:var(--bdr);margin:0;overflow:hidden}
+.beam-div::after{content:'';position:absolute;top:-1px;width:220px;height:3px;background:linear-gradient(90deg,transparent,var(--cyan) 40%,var(--purp) 60%,transparent);left:-220px;opacity:0}
+.beam-div.beam-go::after{opacity:1;animation:beamSlide 1.4s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes beamSlide{to{left:110%}}
+/* spotlight on cards */
+.scard{position:relative;overflow:hidden}
+.scard::after{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.06) 0%,transparent 70%);pointer-events:none;z-index:0;transform:translate(-50%,-50%) scale(0);transition:transform .4s ease,opacity .4s ease;opacity:0}
+.scard:hover::after{transform:translate(var(--mx),var(--my)) scale(1);opacity:1}
+/* glitch heading */
+.ghead{position:relative;display:inline-block}
+.ghead::before,.ghead::after{content:attr(data-t);position:absolute;inset:0;background:inherit;-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:0}
+.ghead.glitch-go::before{animation:gb .5s steps(2) forwards;clip-path:polygon(0 15%,100% 15%,100% 35%,0 35%)}
+.ghead.glitch-go::after{animation:ga .5s steps(2) .1s forwards;clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%)}
+@keyframes gb{0%{transform:translateX(-5px);opacity:.7}50%{transform:translateX(5px);opacity:.5}100%{transform:none;opacity:0}}
+@keyframes ga{0%{transform:translateX(4px);opacity:.6}50%{transform:translateX(-4px);opacity:.4}100%{transform:none;opacity:0}}
+/* counter */
+.ctr{font-family:'Oxanium',sans-serif;font-weight:800;font-size:2rem;background:linear-gradient(120deg,var(--cyan),var(--purp));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+/* skill item stagger */
+.si{opacity:0;transform:translateX(-18px);transition:opacity .45s ease,transform .45s ease,color .2s,padding-left .2s}
+.si.go{opacity:1;transform:translateX(0)}
+/* cursor blink on headings */
+.sh::after{content:'';display:inline-block;width:3px;height:.8em;background:var(--cyan);vertical-align:-.05em;margin-left:6px;opacity:0;animation:none}
+.sh.cur-on::after{opacity:1;animation:blink 1s step-end infinite}
+/* card border light sweep */
+.bsweep{position:relative}
+.bsweep::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0;transition:none}
+.bsweep.sweep-go::before{opacity:1;animation:sweep 1s ease-out forwards}
+@keyframes sweep{from{left:-60%}to{left:110%}}
+
 @media(max-width:900px){
   .hero-inner{grid-template-columns:1fr}
   #robot-svg{width:200px}
@@ -296,6 +338,8 @@ footer{position:relative;z-index:10;border-top:1px solid var(--bdr);padding:3rem
 </style>
 </head>
 <body>
+
+<div id="scroll-prog"></div>
 
 <nav>
   <div class="logo">Z0RO</div>
@@ -503,11 +547,12 @@ footer{position:relative;z-index:10;border-top:1px solid var(--bdr);padding:3rem
 </div>
 
 <!-- ═══════════════ ABOUT ═══════════════ -->
+<div class="beam-div"></div>
 <div class="section reveal" id="about">
-  <div class="kk">01 — about</div>
-  <h2 class="sh">Who is<br><em>Z0RO</em></h2>
+  <div class="kk sa">01 — about</div>
+  <h2 class="sh ghead sa sd1" data-t="Who is Z0RO">Who is<br><em>Z0RO</em></h2>
   <div class="ag">
-    <div class="at">
+    <div class="at sa-l sd2">
       <p>I operate as <span class="hl">Z0RO</span> — a threat researcher and mobile security
       professional with deep expertise in <strong>Android &amp; iOS application pentesting</strong>,
       runtime manipulation, SSL pinning bypass, and root detection evasion.</p>
@@ -523,7 +568,7 @@ footer{position:relative;z-index:10;border-top:1px solid var(--bdr);padding:3rem
         <div class="kali-card-val">Kali Linux</div>
       </div>
     </div>
-    <div class="metas">
+    <div class="metas sa-r sd3">
       <div class="mi"><div class="mn">HTB</div><div class="ml">HackTheBox<br>Pro Hacker</div></div>
       <div class="mi"><div class="mn">2x</div><div class="ml">RedFox CTF<br>Participant</div></div>
       <div class="mi"><div class="mn">ARM</div><div class="ml">Native Binary<br>Analysis</div></div>
@@ -533,46 +578,48 @@ footer{position:relative;z-index:10;border-top:1px solid var(--bdr);padding:3rem
 </div>
 
 <!-- ═══════════════ SKILLS ═══════════════ -->
+<div class="beam-div"></div>
 <div class="section reveal" id="skills">
-  <div class="kk">02 — skills</div>
-  <h2 class="sh">Core<br><em>Disciplines</em></h2>
+  <div class="kk sa">02 — skills</div>
+  <h2 class="sh ghead sa sd1" data-t="Core Disciplines">Core<br><em>Disciplines</em></h2>
   <div class="sg">
-    <div class="sp">
+    <div class="sp scard bsweep">
       <div class="sp-h">mobile security</div>
-      <div class="si">Android App Pentesting</div>
-      <div class="si">iOS Binary Analysis</div>
-      <div class="si">SSL Pinning Bypass</div>
-      <div class="si">Root Detection Bypass</div>
-      <div class="si">APK Reverse Engineering</div>
-      <div class="si">Frida Runtime Hooking</div>
+      <div class="si sd1">Android App Pentesting</div>
+      <div class="si sd2">iOS Binary Analysis</div>
+      <div class="si sd3">SSL Pinning Bypass</div>
+      <div class="si sd4">Root Detection Bypass</div>
+      <div class="si sd5">APK Reverse Engineering</div>
+      <div class="si sd6">Frida Runtime Hooking</div>
     </div>
-    <div class="sp">
+    <div class="sp scard bsweep">
       <div class="sp-h">threat intelligence</div>
-      <div class="si">Android Malware Analysis</div>
-      <div class="si">UPI Fraud Threat Tracking</div>
-      <div class="si">Static &amp; Dynamic Analysis</div>
-      <div class="si">IOC Extraction</div>
-      <div class="si">TTP Profiling</div>
-      <div class="si">VM-Based Sandboxing</div>
+      <div class="si sd1">Android Malware Analysis</div>
+      <div class="si sd2">UPI Fraud Threat Tracking</div>
+      <div class="si sd3">Static &amp; Dynamic Analysis</div>
+      <div class="si sd4">IOC Extraction</div>
+      <div class="si sd5">TTP Profiling</div>
+      <div class="si sd6">VM-Based Sandboxing</div>
     </div>
-    <div class="sp">
+    <div class="sp scard bsweep">
       <div class="sp-h">offensive security</div>
-      <div class="si">Web App Pentesting</div>
-      <div class="si">Network Interception</div>
-      <div class="si">Privilege Escalation</div>
-      <div class="si">Recon &amp; OSINT</div>
-      <div class="si">Exploit Development</div>
-      <div class="si">CTF Competition Play</div>
+      <div class="si sd1">Web App Pentesting</div>
+      <div class="si sd2">Network Interception</div>
+      <div class="si sd3">Privilege Escalation</div>
+      <div class="si sd4">Recon &amp; OSINT</div>
+      <div class="si sd5">Exploit Development</div>
+      <div class="si sd6">CTF Competition Play</div>
     </div>
   </div>
 </div>
 
 <!-- ═══════════════ HTB ═══════════════ -->
+<div class="beam-div"></div>
 <div class="section reveal" id="htb">
-  <div class="kk">03 — hackthebox</div>
-  <h2 class="sh">Ranked.<br><em>Proven.</em></h2>
+  <div class="kk sa">03 — hackthebox</div>
+  <h2 class="sh ghead sa sd1" data-t="Ranked. Proven.">Ranked.<br><em>Proven.</em></h2>
   <div class="htbg">
-    <div class="htb-l">
+    <div class="htb-l sa-l sd2">
       <div>
         <div class="htb-rk">Pro<br>Hacker</div>
         <div class="htb-rs">// current rank</div>
@@ -583,7 +630,7 @@ footer{position:relative;z-index:10;border-top:1px solid var(--bdr);padding:3rem
         <text x="40" y="50" text-anchor="middle" dominant-baseline="middle" font-family="'Oxanium',sans-serif" font-size="13" font-weight="700" fill="#a855f7" letter-spacing="2">HTB</text>
       </svg>
     </div>
-    <div class="htb-r">
+    <div class="htb-r sa-r sd3">
       <p class="htb-p">Achieved <strong>Pro Hacker</strong> status on HackTheBox through consistent machine completions and challenge solves across Linux and Windows environments.</p>
       <div class="htags">
         <div class="htag">web exploitation</div>
@@ -602,24 +649,26 @@ footer{position:relative;z-index:10;border-top:1px solid var(--bdr);padding:3rem
 </div>
 
 <!-- ═══════════════ CTF ═══════════════ -->
+<div class="beam-div"></div>
 <div class="section reveal" id="ctf">
-  <div class="kk">04 — ctf competitions</div>
-  <h2 class="sh">Flagged.<br><em>Captured.</em></h2>
+  <div class="kk sa">04 — ctf competitions</div>
+  <h2 class="sh ghead sa sd1" data-t="Flagged. Captured.">Flagged.<br><em>Captured.</em></h2>
   <div class="ctfg">
-    <div class="cc"><div class="cc-bg">25</div><div class="cc-k">// 2025</div><div class="cc-n">RedFox CTF</div><div class="cc-chips"><span class="chip">web</span><span class="chip">reversing</span><span class="chip">forensics</span><span class="chip">pwn</span></div></div>
-    <div class="cc"><div class="cc-bg">26</div><div class="cc-k">// 2026</div><div class="cc-n">RedFox CTF</div><div class="cc-chips"><span class="chip">mobile</span><span class="chip">crypto</span><span class="chip">web</span><span class="chip">osint</span></div></div>
+    <div class="cc sa-l sd2"><div class="cc-bg">25</div><div class="cc-k">// 2025</div><div class="cc-n">RedFox CTF</div><div class="cc-chips"><span class="chip">web</span><span class="chip">reversing</span><span class="chip">forensics</span><span class="chip">pwn</span></div></div>
+    <div class="cc sa-r sd2"><div class="cc-bg">26</div><div class="cc-k">// 2026</div><div class="cc-n">RedFox CTF</div><div class="cc-chips"><span class="chip">mobile</span><span class="chip">crypto</span><span class="chip">web</span><span class="chip">osint</span></div></div>
   </div>
-  <div class="ctf-note">
+  <div class="ctf-note sa sd3">
     <div class="cn-tag">// philosophy</div>
     <div class="cn-txt">CTF challenges are the closest thing to real offensive security under pressure. Each flag is a proof — a new attack surface, a new technique, a new mindset.</div>
   </div>
 </div>
 
 <!-- ═══════════════ ARSENAL ═══════════════ -->
+<div class="beam-div"></div>
 <section id="arsenal" style="position:relative;z-index:10;padding:8rem 5rem">
   <div style="max-width:1100px;margin:0 auto">
-    <div class="kk reveal">05 — arsenal</div>
-    <h2 class="sh reveal">The <em>Toolset.</em></h2>
+    <div class="kk sa reveal">05 — arsenal</div>
+    <h2 class="sh ghead sa sd1 reveal" data-t="The Toolset.">The <em>Toolset.</em></h2>
     <div class="terminal-grid reveal">
       <div class="t-card">
         <div class="t-topbar"><div class="t-dots"><div class="t-dot r"></div><div class="t-dot y"></div><div class="t-dot g"></div></div><div class="t-title">burpsuite — intercept proxy</div></div>
@@ -821,6 +870,95 @@ document.querySelectorAll('.t-card').forEach(c=>cardObs.observe(c));
 const revEls=document.querySelectorAll('.reveal');
 const io=new IntersectionObserver(entries=>entries.forEach((e,i)=>{ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('in'),i*80); io.unobserve(e.target); } }),{threshold:.08});
 revEls.forEach(e=>io.observe(e));
+
+/* ══════ SCROLL PROGRESS BAR ══════ */
+const prog=document.getElementById('scroll-prog');
+window.addEventListener('scroll',()=>{
+  const max=document.documentElement.scrollHeight-innerHeight;
+  prog.style.transform=`scaleX(${scrollY/max})`;
+},{passive:true});
+
+/* ══════ SCROLL ANIMATIONS OBSERVER ══════ */
+const sa=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const el=e.target;
+    // fade/slide classes
+    if(el.classList.contains('sa')||el.classList.contains('sa-l')||
+       el.classList.contains('sa-r')||el.classList.contains('sa-s')){
+      el.classList.add('go');
+    }
+    // glitch heading
+    if(el.classList.contains('ghead')){
+      el.classList.add('glitch-go');
+      setTimeout(()=>el.classList.remove('glitch-go'),600);
+    }
+    // cursor blink on h2
+    if(el.tagName==='H2'){
+      el.classList.add('cur-on');
+      setTimeout(()=>el.classList.remove('cur-on'),2200);
+    }
+    // beam divider
+    if(el.classList.contains('beam-div')) el.classList.add('beam-go');
+    // skill panels — stagger items
+    if(el.classList.contains('sp')){
+      el.querySelectorAll('.si').forEach((si,i)=>setTimeout(()=>si.classList.add('go'),i*75+80));
+      el.classList.add('sweep-go');
+    }
+    sa.unobserve(el);
+  });
+},{threshold:0.12});
+document.querySelectorAll('.sa,.sa-l,.sa-r,.sa-s,.beam-div,.ghead,.sp,h2').forEach(el=>sa.observe(el));
+
+/* ══════ COUNTER ANIMATION ══════ */
+const counterObs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(!e.isIntersecting) return;
+  const el=e.target;
+  const raw=el.dataset.count||'';
+  const num=parseFloat(raw);
+  if(!isNaN(num)&&raw!==''){
+    let start=null;
+    const run=ts=>{
+      if(!start) start=ts;
+      const p=Math.min((ts-start)/1200,1);
+      const ease=1-Math.pow(1-p,3);
+      el.textContent=Number.isInteger(num)?Math.round(ease*num):( Math.round(ease*num*10)/10 );
+      if(p<1) requestAnimationFrame(run); else el.textContent=raw;
+    };
+    requestAnimationFrame(run);
+  } else { el.textContent=raw; }
+  counterObs.unobserve(el);
+}),{threshold:.5});
+document.querySelectorAll('.mn').forEach(el=>{
+  const t=el.textContent.trim();
+  el.dataset.count=t; el.textContent='0';
+  counterObs.observe(el);
+});
+
+/* ══════ SPOTLIGHT CARDS ══════ */
+document.querySelectorAll('.scard').forEach(c=>{
+  c.addEventListener('mousemove',e=>{
+    const r=c.getBoundingClientRect();
+    c.style.setProperty('--mx',(e.clientX-r.left)+'px');
+    c.style.setProperty('--my',(e.clientY-r.top)+'px');
+  });
+});
+
+/* ══════ FLOATING CODE LINES ══════ */
+const snips=['frida -U -f target','ssl_pinning_bypass()','adb shell su','root_detect: bypassed','0x7ffd→0x00','CTF_flag{...}','POST /api/login','msfconsole -q','jadx -d ./out','nmap -sV target','tshark -i wlan0','objection explore'];
+snips.forEach((txt,i)=>{
+  const d=document.createElement('div');
+  d.className='code-float';
+  d.textContent=txt;
+  d.style.cssText=`left:${i%2===0?Math.random()*12:87+Math.random()*10}%;top:${18+i*6.5}%;`;
+  document.body.appendChild(d);
+  window.addEventListener('scroll',()=>{
+    const zone=(i/snips.length)*(document.body.scrollHeight-innerHeight);
+    const dist=Math.abs(scrollY-zone);
+    d.style.opacity=dist<innerHeight*.55?Math.max(0,(1-dist/(innerHeight*.55))*.16):0;
+  },{passive:true});
+});
+
 </script>
 </body>
 </html>
