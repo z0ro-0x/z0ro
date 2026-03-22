@@ -5,917 +5,585 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Z0RO — Security Researcher</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-:root {
-  --bg:     #0d0d0d;
-  --bg2:    #141414;
-  --bg3:    #1a1a1a;
-  --gold:   #e8c97e;
-  --gold2:  #f5dfa0;
-  --orange: #e07a3a;
-  --white:  #f0ece3;
-  --muted:  #5a5550;
-  --dim:    #2a2520;
-  --border: rgba(232,201,126,0.15);
-  --card:   rgba(232,201,126,0.03);
+:root{
+  --bg:      #07080f;
+  --bg2:     #0b0d1c;
+  --bg3:     #10132a;
+  --cyan:    #00d4ff;
+  --cyan2:   #00a8cc;
+  --purple:  #a855f7;
+  --purp2:   #7c3aed;
+  --white:   #f0f4ff;
+  --text:    #5a6280;
+  --muted:   #252a42;
+  --bdr:     rgba(0,212,255,0.10);
+  --bdrp:    rgba(168,85,247,0.12);
+  --card:    rgba(0,212,255,0.03);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Manrope',sans-serif;overflow-x:hidden;cursor:default}
+
+/* cursor: default arrow */
+
+/* ══════════ NAV ══════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.3rem 5rem;
+  background:rgba(7,8,15,0.9);
+  backdrop-filter:blur(22px);
+  border-bottom:1px solid var(--bdr);
+}
+.logo{
+  font-family:'Oxanium',sans-serif;
+  font-weight:800;font-size:1.5rem;letter-spacing:6px;
+  background:linear-gradient(120deg,#fff 0%,var(--cyan) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.nav-links{display:flex;gap:2.2rem;align-items:center}
+.nav-links a{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;letter-spacing:2px;color:var(--text);text-decoration:none;transition:color .2s;
+}
+.nav-links a:hover{color:var(--cyan)}
+.nav-links a::before{content:'# ';color:var(--cyan);opacity:.35;transition:opacity .2s}
+.nav-links a:hover::before{opacity:.9}
+.nav-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;letter-spacing:2px;
+  color:var(--cyan);opacity:.5;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  overflow-x: hidden;
-  cursor: none;
+/* ══════════ HERO ══════════ */
+#hero{
+  position:relative;z-index:10;min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 5rem;overflow:hidden;
 }
+#hero-bg{position:absolute;inset:0;pointer-events:none;z-index:0}
 
-/* Noise texture */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.6;
-}
+.hi{max-width:1100px;margin:0 auto;width:100%;position:relative;z-index:2}
 
-/* Custom cursor */
-.cur {
-  position: fixed;
-  width: 8px; height: 8px;
-  background: var(--gold);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: width 0.2s, height 0.2s;
+.h-eye{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:4px;color:var(--cyan2);
+  margin-bottom:1.8rem;
+  opacity:0;animation:up .6s .3s ease forwards;
+  display:flex;align-items:center;gap:.8rem;
 }
-.cur-ring {
-  position: fixed;
-  width: 28px; height: 28px;
-  border: 1px solid rgba(232,201,126,0.4);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%, -50%);
-  transition: all 0.15s ease;
+.h-eye::before{content:'';width:24px;height:1px;background:var(--cyan2);opacity:.5}
+.h-eye span{color:var(--purple)}
+
+.h-name{
+  font-family:'Oxanium',sans-serif;
+  font-weight:800;
+  font-size:clamp(5.5rem,15vw,13rem);
+  line-height:.86;letter-spacing:2px;
+  opacity:0;animation:up .9s .5s cubic-bezier(.16,1,.3,1) forwards;
+}
+.h-name .solid{
+  background:linear-gradient(150deg,#fff 0%,#b8d0ff 55%,var(--cyan) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.h-name .outline{
+  -webkit-text-stroke:1.5px var(--purple);
+  color:transparent;
+  opacity:.7;
 }
 
-/* NAV */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 500;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 5rem;
-  background: rgba(13,13,13,0.9);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
+.h-divider{
+  display:flex;align-items:center;gap:1.2rem;
+  margin:2.5rem 0;
+  opacity:0;animation:fadeIn .5s .9s ease forwards;
 }
-.nav-logo {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: 6px;
-  color: var(--gold);
-  text-transform: uppercase;
-}
-.nav-links { display: flex; gap: 2.5rem; align-items: center; }
-.nav-links a {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 2px;
-  color: var(--muted);
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: color 0.25s;
-}
-.nav-links a:hover { color: var(--gold); }
-.nav-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--orange);
-  animation: breathe 3s infinite;
-}
-@keyframes breathe { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.h-divider-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(0,212,255,.3),transparent)}
+.h-divider-txt{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--text);white-space:nowrap}
 
-/* HERO */
-#hero {
-  position: relative;
-  z-index: 2;
-  min-height: 100vh;
-  padding: 0 5rem;
-  display: flex;
-  align-items: center;
+.h-row{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;
+  opacity:0;animation:up .7s 1.05s ease forwards;
 }
-.hero-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-  padding-top: 5rem;
-}
-.hero-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  opacity: 0;
-  animation: slideIn 0.7s 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
-}
-.eyebrow-line {
-  width: 32px; height: 1px;
-  background: var(--gold);
-}
-.eyebrow-text {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 4px;
-  color: var(--gold);
-  text-transform: uppercase;
-}
-.hero-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: clamp(6rem, 16vw, 13rem);
-  line-height: 0.88;
-  color: var(--white);
-  letter-spacing: -4px;
-  opacity: 0;
-  animation: slideIn 0.8s 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
-}
-.hero-name-accent {
-  color: transparent;
-  -webkit-text-stroke: 2px var(--gold);
-}
-.hero-tagline {
-  margin-top: 2rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.8rem;
-  letter-spacing: 3px;
-  color: var(--muted);
-  text-transform: uppercase;
-  opacity: 0;
-  animation: slideIn 0.7s 0.75s cubic-bezier(0.22,1,0.36,1) forwards;
-}
-.hero-tagline span { color: var(--orange); }
-.hero-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-top: 4rem;
-  gap: 2rem;
-  opacity: 0;
-  animation: slideIn 0.7s 1s cubic-bezier(0.22,1,0.36,1) forwards;
-}
-.hero-desc {
-  max-width: 420px;
-  font-size: 0.95rem;
-  line-height: 1.85;
-  color: var(--muted);
-  font-weight: 300;
-}
-.hero-desc strong { color: var(--white); font-weight: 500; }
-.hero-badges {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  align-items: flex-end;
-}
-.badge {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 2px;
-  border: 1px solid var(--border);
-  padding: 0.45rem 1rem;
-  color: var(--gold);
-  text-transform: uppercase;
-  background: var(--card);
-}
-.badge.active {
-  border-color: rgba(232,201,126,0.4);
-  background: rgba(232,201,126,0.06);
-}
+.h-desc{max-width:430px;font-size:1rem;font-weight:300;line-height:1.95;color:var(--text)}
+.h-desc strong{color:var(--white);font-weight:600}
 
-/* Terminal ticker */
-.ticker {
-  margin-top: 3rem;
-  border-top: 1px solid var(--border);
-  padding-top: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  opacity: 0;
-  animation: slideIn 0.7s 1.2s cubic-bezier(0.22,1,0.36,1) forwards;
+.h-pills{display:flex;flex-direction:column;gap:.55rem;align-items:flex-end}
+.pill{
+  font-family:'JetBrains Mono',monospace;font-size:.58rem;
+  letter-spacing:2px;padding:.45rem 1rem;
+  border:1px solid var(--bdr);color:var(--text);background:var(--card);transition:all .25s;cursor:default;
 }
-.ticker-prompt {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--orange);
-  flex-shrink: 0;
-}
-.ticker-text {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--gold2);
-  opacity: 0.7;
-}
-.ticker-cursor {
-  width: 8px; height: 14px;
-  background: var(--gold);
-  display: inline-block;
-  animation: blink 1.1s step-end infinite;
-  vertical-align: middle;
-  margin-left: 2px;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.pill.c{border-color:rgba(0,212,255,.28);color:var(--cyan2)}
+.pill.p{border-color:rgba(168,85,247,.28);color:var(--purple)}
 
-/* SECTIONS */
-.section {
-  position: relative;
-  z-index: 2;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 7rem 5rem;
+.h-cmd{
+  margin-top:2.8rem;border-top:1px solid var(--bdr);padding-top:1.5rem;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  opacity:0;animation:up .6s 1.25s ease forwards;
 }
-.s-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 4px;
-  color: var(--orange);
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
-}
-.s-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-.s-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: clamp(2.2rem, 5vw, 3.5rem);
-  line-height: 1;
-  letter-spacing: -1px;
-  margin-bottom: 3.5rem;
-  color: var(--white);
-}
-.s-title em {
-  font-style: normal;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--gold);
-}
+.cp{color:var(--cyan);opacity:.7}.cu{color:var(--cyan)}.cp2{color:var(--cyan);opacity:.4}
+#cmd-t{color:rgba(240,244,255,.8)}
+.cb{display:inline-block;width:7px;height:14px;background:var(--cyan);vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite;box-shadow:0 0 8px var(--cyan)}
 
-/* ABOUT */
-.about-layout {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 5rem;
-  align-items: start;
-}
-.about-body p {
-  font-size: 1rem;
-  line-height: 1.9;
-  color: var(--muted);
-  font-weight: 300;
-}
-.about-body p + p { margin-top: 1.2rem; }
-.about-body strong { color: var(--white); font-weight: 500; }
-.about-body em { color: var(--gold); font-style: normal; }
-.about-stats { display: flex; flex-direction: column; gap: 0; }
-.stat-row {
-  padding: 1.5rem 0;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-}
-.stat-row:first-child { border-top: 1px solid var(--border); }
-.stat-n {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 2.5rem;
-  color: var(--gold);
-  letter-spacing: -1px;
-}
-.stat-l {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 2px;
-  color: var(--muted);
-  text-transform: uppercase;
-  text-align: right;
-}
+.scroll-i{position:absolute;bottom:2.5rem;right:5rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:3px;color:var(--muted);writing-mode:vertical-rl;opacity:0;animation:fadeIn 1s 2.2s ease forwards}
+.sl{width:1px;height:50px;background:linear-gradient(var(--cyan),transparent);animation:sline 2.5s ease-in-out infinite}
 
-/* SKILLS */
-.skill-cols {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-}
-.skill-col {
-  background: var(--bg);
-  padding: 2rem;
-  transition: background 0.3s;
-}
-.skill-col:hover { background: var(--bg2); }
-.skill-col-head {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 3px;
-  color: var(--orange);
-  text-transform: uppercase;
-  margin-bottom: 1.8rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
-}
-.skill-item {
-  font-size: 0.88rem;
-  color: var(--muted);
-  padding: 0.55rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-  font-weight: 300;
-  transition: color 0.2s;
-}
-.skill-item:last-child { border-bottom: none; }
-.skill-item:hover { color: var(--white); }
-.skill-item::before {
-  content: '';
-  width: 3px; height: 3px;
-  border-radius: 50%;
-  background: var(--gold);
-  flex-shrink: 0;
-  opacity: 0.6;
-}
+/* ══════════ SECTION ══════════ */
+.section{position:relative;z-index:10;padding:8rem 5rem;max-width:1100px;margin:0 auto}
+.kk{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:4px;color:var(--cyan2);margin-bottom:.9rem;display:flex;align-items:center;gap:.8rem}
+.kk::before{content:'';width:20px;height:1px;background:var(--cyan2)}
+.sh{font-family:'Oxanium',sans-serif;font-weight:800;font-size:clamp(2.2rem,5vw,4.2rem);line-height:.92;letter-spacing:1px;color:var(--white);margin-bottom:3.5rem}
+.sh em{font-style:normal;background:linear-gradient(120deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-/* HTB */
-.htb-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-}
-.htb-left {
-  background: var(--bg2);
-  padding: 3.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.htb-right {
-  background: var(--bg);
-  padding: 3.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-.htb-platform-tag {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 3px;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-.htb-rank-display {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  color: #a8d97e;
-  letter-spacing: -1px;
-  text-shadow: 0 0 40px rgba(168,217,126,0.3);
-  line-height: 1;
-}
-.htb-rank-sub {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 3px;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-top: 0.5rem;
-}
-.htb-orb {
-  width: 90px; height: 90px;
-  border-radius: 50%;
-  border: 1px solid rgba(168,217,126,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.1rem;
-  color: #a8d97e;
-  background: radial-gradient(circle at 30% 30%, rgba(168,217,126,0.08), transparent);
-  margin-top: auto;
-}
-.htb-detail {
-  border-top: 1px solid var(--border);
-  padding-top: 1.2rem;
-}
-.htb-detail-l {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 3px;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-.htb-detail-v {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--white);
-}
+/* ══════════ ABOUT ══════════ */
+.ag{display:grid;grid-template-columns:3fr 2fr;gap:5rem;align-items:start}
+.at p{font-size:1rem;font-weight:300;line-height:2;color:var(--text)}
+.at p+p{margin-top:1.2rem}
+.at strong{color:var(--white);font-weight:600}
+.hl{color:var(--cyan)}
 
-/* CTF */
-.ctf-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+/* Kali Logo card */
+.kali-card{
+  border:1px solid var(--bdr);background:var(--bg2);
+  padding:2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;
+  margin-top:1.5rem;position:relative;overflow:hidden;
 }
-.ctf-entry {
-  border: 1px solid var(--border);
-  background: var(--bg2);
-  padding: 2rem 2.5rem;
-  transition: border-color 0.3s, transform 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-.ctf-entry::before {
-  content: attr(data-year);
-  position: absolute;
-  right: 1.5rem;
-  bottom: 1rem;
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 4rem;
-  color: rgba(232,201,126,0.04);
-  line-height: 1;
-  letter-spacing: -2px;
-  pointer-events: none;
-}
-.ctf-entry:hover {
-  border-color: rgba(232,201,126,0.3);
-  transform: translateY(-4px);
-}
-.ctf-flag {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 3px;
-  color: var(--orange);
-  text-transform: uppercase;
-  margin-bottom: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.ctf-flag::before {
-  content: '⚑';
-  font-size: 0.7rem;
-}
-.ctf-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.6rem;
-  color: var(--white);
-  letter-spacing: -0.5px;
-  margin-bottom: 1.5rem;
-}
-.ctf-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-.chip {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 1.5px;
-  color: var(--muted);
-  border: 1px solid var(--dim);
-  padding: 0.3rem 0.7rem;
-  text-transform: uppercase;
-  transition: color 0.2s, border-color 0.2s;
-}
-.ctf-entry:hover .chip { color: var(--gold); border-color: rgba(232,201,126,0.2); }
-.ctf-wide {
-  grid-column: span 2;
-  border: 1px solid var(--border);
-  background: var(--bg2);
-  padding: 2rem 2.5rem;
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-}
-.ctf-wide-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 3px;
-  color: var(--muted);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.ctf-wide-text {
-  font-size: 0.9rem;
-  color: var(--muted);
-  font-weight: 300;
-  line-height: 1.7;
-  border-left: 1px solid var(--border);
-  padding-left: 2rem;
-}
+.kali-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,212,255,0.05),transparent 70%);pointer-events:none}
+.kali-logo-img{width:90px;height:90px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(35,190,253,.5))}
+.kali-card-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:3px;color:var(--text);text-transform:uppercase;text-align:center}
+.kali-card-val{font-family:'Oxanium',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:2px;color:var(--cyan);text-align:center}
 
-/* ARSENAL */
-.arsenal-wrap {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-}
-.tool {
-  background: var(--bg);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  transition: background 0.25s;
-  cursor: default;
-}
-.tool:hover { background: var(--bg3); }
-.tool-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--white);
-  letter-spacing: 0.5px;
-}
-.tool-cat {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 2px;
-  color: var(--muted);
-  text-transform: uppercase;
-}
+.metas{display:flex;flex-direction:column}
+.mi{padding:1.4rem 0;border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:center}
+.mi:first-child{border-top:1px solid var(--bdr)}
+.mn{font-family:'Oxanium',sans-serif;font-weight:800;font-size:2rem;letter-spacing:1px;background:linear-gradient(120deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.ml{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:2px;color:var(--text);text-transform:uppercase;line-height:1.8}
 
-/* FOOTER */
-footer {
-  position: relative;
-  z-index: 2;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3rem 5rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.footer-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.2rem;
-  color: var(--gold);
-  letter-spacing: 5px;
-}
-.footer-r {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 2px;
-  color: var(--muted);
-  text-align: right;
-  line-height: 2;
-}
-.footer-r span { color: var(--orange); }
+/* ══════════ SKILLS ══════════ */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid var(--bdr);background:var(--bdr)}
+.sp{background:var(--bg2);padding:2.4rem;transition:background .3s}
+.sp:hover{background:rgba(0,212,255,.03)}
+.sp-h{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:3px;color:var(--cyan2);text-transform:uppercase;margin-bottom:1.8rem;padding-bottom:1rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:.5rem}
+.sp-h::before{content:'[ ';opacity:.4}.sp-h::after{content:' ]';opacity:.4}
+.si{font-family:'Manrope',sans-serif;font-size:.9rem;font-weight:400;color:var(--text);padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.03);display:flex;align-items:center;gap:.7rem;transition:color .2s,padding-left .2s}
+.si:last-child{border-bottom:none}
+.si:hover{color:var(--white);padding-left:5px}
+.si::before{content:'';width:10px;height:1px;background:linear-gradient(90deg,var(--cyan),var(--purple));opacity:.3;flex-shrink:0;transition:width .2s,opacity .2s}
+.si:hover::before{width:16px;opacity:1}
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* ══════════ HTB ══════════ */
+.htbg{display:grid;grid-template-columns:1fr 1.3fr;gap:1px;border:1px solid var(--bdr);background:var(--bdr)}
+.htb-l{background:var(--bg2);padding:4rem;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.htb-l::before{content:'';position:absolute;top:-80px;left:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(168,85,247,.07) 0%,transparent 70%);pointer-events:none}
+.htb-rk{font-family:'Oxanium',sans-serif;font-weight:800;font-size:clamp(2.2rem,5vw,3.5rem);letter-spacing:2px;line-height:.9;background:linear-gradient(135deg,#fff,var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.htb-rs{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:3px;color:var(--text);text-transform:uppercase;margin-top:.6rem}
+.htb-r{background:var(--bg);padding:4rem;display:flex;flex-direction:column;gap:2rem}
+.htb-p{font-size:1rem;font-weight:300;line-height:2;color:var(--text)}
+.htb-p strong{color:var(--white);font-weight:600}
+.htags{display:flex;flex-wrap:wrap;gap:.5rem}
+.htag{font-family:'JetBrains Mono',monospace;font-size:.53rem;letter-spacing:2px;border:1px solid var(--bdr);color:var(--text);padding:.35rem .75rem;text-transform:uppercase;transition:all .2s;cursor:default}
+.htag:hover{border-color:var(--purple);color:var(--purple)}
+.htb-st{display:flex;gap:2.5rem;border-top:1px solid var(--bdr);padding-top:2rem}
+.hstv{font-family:'Oxanium',sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:2px;color:var(--white)}
+.hstl{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:2px;color:var(--text);text-transform:uppercase;margin-top:.2rem}
 
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1),
-              transform 0.8s cubic-bezier(0.22,1,0.36,1);
-}
-.reveal.in { opacity: 1; transform: translateY(0); }
+/* HTB hex */
+.htb-hex-wrap{margin-top:2.5rem;opacity:.85}
 
-@media (max-width: 768px) {
-  nav { padding: 1.2rem 1.5rem; }
-  .nav-links { display: none; }
-  #hero, .section { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .about-layout { grid-template-columns: 1fr; gap: 3rem; }
-  .skill-cols { grid-template-columns: 1fr; }
-  .htb-wrap { grid-template-columns: 1fr; }
-  .ctf-list { grid-template-columns: 1fr; }
-  .ctf-wide { grid-column: span 1; flex-direction: column; gap: 1rem; }
-  .ctf-wide-text { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 1rem; }
-  .arsenal-wrap { grid-template-columns: repeat(2, 1fr); }
-  .hero-row { flex-direction: column; align-items: flex-start; }
-  footer { flex-direction: column; gap: 1.5rem; text-align: center; }
-  .footer-r { text-align: center; }
+/* ══════════ CTF ══════════ */
+.ctfg{display:grid;grid-template-columns:1fr 1fr;gap:1px;border:1px solid var(--bdr);background:var(--bdr);margin-bottom:1px}
+.cc{background:var(--bg2);padding:3rem;position:relative;overflow:hidden;transition:background .3s}
+.cc:hover{background:rgba(168,85,247,.03)}
+.cc-bg{font-family:'Oxanium',sans-serif;font-weight:800;font-size:6.5rem;color:rgba(168,85,247,.05);line-height:1;position:absolute;bottom:-.8rem;right:1rem;pointer-events:none;letter-spacing:2px}
+.cc-k{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:3px;color:var(--purple);text-transform:uppercase;margin-bottom:.7rem}
+.cc-n{font-family:'Oxanium',sans-serif;font-weight:700;font-size:1.9rem;letter-spacing:2px;color:var(--white);margin-bottom:1.5rem}
+.cc-chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:1.5px;border:1px solid var(--bdr);color:var(--text);padding:.28rem .65rem;text-transform:uppercase;transition:all .2s}
+.cc:hover .chip{border-color:rgba(168,85,247,.25);color:var(--purple)}
+.ctf-note{border:1px solid var(--bdr);background:var(--bg);padding:2rem 3rem;display:flex;align-items:center;gap:3rem}
+.cn-tag{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:3px;color:var(--cyan2);white-space:nowrap;text-transform:uppercase}
+.cn-txt{font-size:.95rem;font-weight:300;color:var(--text);line-height:1.9;border-left:1px solid var(--bdr);padding-left:2rem}
+
+/* ══════════ ARSENAL ══════════ */
+#arsenal{position:relative;z-index:10;padding:8rem 5rem}
+.ars-in{max-width:1100px;margin:0 auto}
+#a-canvas{width:100%;height:540px;display:block;border:1px solid var(--bdr);background:var(--bg2)}
+.a-hint{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:3px;color:var(--muted);text-align:center;margin-top:.9rem;text-transform:uppercase}
+
+/* ══════════ FOOTER ══════════ */
+footer{position:relative;z-index:10;border-top:1px solid var(--bdr);padding:3rem 5rem;max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.ft-logo{font-family:'Oxanium',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:5px;background:linear-gradient(120deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ft-r{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:2px;color:var(--text);text-align:right;line-height:2.2}
+.ft-r span{color:var(--cyan2)}
+
+/* animations */
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes sline{0%,100%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+@media(max-width:768px){
+  nav{padding:1.2rem 1.5rem}.nav-links{display:none}
+  #hero,.section,#arsenal{padding-left:1.5rem;padding-right:1.5rem}
+  .ag,.htbg,.ctfg{grid-template-columns:1fr}.sg{grid-template-columns:1fr}
+  .h-row{flex-direction:column;align-items:flex-start}
+  footer{padding:2rem 1.5rem;flex-direction:column;gap:1.5rem;text-align:center}.ft-r{text-align:center}
 }
 </style>
 </head>
 <body>
 
-<div class="cur" id="cur"></div>
-<div class="cur-ring" id="curRing"></div>
+
 
 <nav>
-  <div class="nav-logo">Z0RO</div>
+  <div class="logo">Z0RO</div>
   <div class="nav-links">
-    <a href="#about">About</a>
-    <a href="#skills">Skills</a>
-    <a href="#htb">HTB</a>
-    <a href="#ctf">CTF</a>
-    <a href="#arsenal">Arsenal</a>
-    <div class="nav-dot"></div>
+    <a href="#about">about</a>
+    <a href="#skills">skills</a>
+    <a href="#htb">htb</a>
+    <a href="#ctf">ctf</a>
+    <a href="#arsenal">arsenal</a>
   </div>
+  <div class="nav-badge">// status: active</div>
 </nav>
 
-<!-- HERO -->
+<!-- ══ HERO ══ -->
 <section id="hero">
-  <div class="hero-inner">
-    <div class="hero-eyebrow">
-      <div class="eyebrow-line"></div>
-      <div class="eyebrow-text">Threat Researcher &amp; Security Professional</div>
+  <canvas id="hero-bg"></canvas>
+  <div class="hi">
+    <div class="h-eye">
+      threat_researcher &nbsp;//&nbsp; <span>mobile_security</span> &nbsp;//&nbsp; ctf_player
     </div>
-
-    <h1 class="hero-name">
-      Z<span class="hero-name-accent">0</span>RO
+    <h1 class="h-name">
+      <span class="solid">Z0</span><span class="outline">RO</span>
     </h1>
-
-    <div class="hero-tagline">
-      Mobile &nbsp;<span>·</span>&nbsp; Android &nbsp;<span>·</span>&nbsp; iOS &nbsp;<span>·</span>&nbsp; CTF Player &nbsp;<span>·</span>&nbsp; <span>Reverse Engineer</span>
+    <div class="h-divider">
+      <div class="h-divider-line"></div>
+      <div class="h-divider-txt">android · ios · reverse_engineering · threat_intel</div>
+      <div class="h-divider-line" style="background:linear-gradient(270deg,rgba(168,85,247,.3),transparent)"></div>
     </div>
-
-    <div class="hero-row">
-      <p class="hero-desc">
-        Security researcher breaking <strong>mobile applications</strong> from the inside out.
-        Bypassing protections, hooking runtimes, tracking threats.
-        <strong>Pro Hacker on HackTheBox.</strong>
+    <div class="h-row">
+      <p class="h-desc">
+        Security researcher specializing in <strong>mobile application security</strong>,
+        runtime instrumentation &amp; threat intelligence.
+        Breaking defenses. <strong>Finding what others miss.</strong>
       </p>
-      <div class="hero-badges">
-        <div class="badge active">⬡ HTB Pro Hacker</div>
-        <div class="badge">RedFox CTF 2025</div>
-        <div class="badge">RedFox CTF 2026</div>
+      <div class="h-pills">
+        <div class="pill c">⬡ &nbsp;htb pro hacker</div>
+        <div class="pill p">redfox ctf 2025</div>
+        <div class="pill p">redfox ctf 2026</div>
+        <div class="pill">android &amp; ios</div>
       </div>
     </div>
-
-    <div class="ticker">
-      <div class="ticker-prompt">z0ro@kali ~ $</div>
-      <div class="ticker-text" id="tickerText"></div><span class="ticker-cursor"></span>
+    <div class="h-cmd">
+      <span class="cp">[</span><span class="cu">z0ro@kali</span><span class="cp">]</span>
+      <span class="cp2">~$</span>
+      <span id="cmd-t"></span><span class="cb"></span>
     </div>
+  </div>
+  <div class="scroll-i"><div class="sl"></div><span>scroll</span></div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<div class="section reveal" id="about">
+  <div class="kk">01 — about</div>
+  <h2 class="sh">Who is<br><em>Z0RO</em></h2>
+  <div class="ag">
+    <div class="at">
+      <p>I operate as <span class="hl">Z0RO</span> — a threat researcher and mobile security
+      professional with deep expertise in <strong>Android &amp; iOS application pentesting</strong>,
+      runtime manipulation, SSL pinning bypass, and root detection evasion.</p>
+      <p>My lab runs a rooted <strong>POCO device on LineageOS + Kitsune Magisk</strong>
+      alongside a jailbroken iPhone — giving me full native-layer control to instrument any
+      target app using custom <span class="hl">Frida</span> hooks and scripts.</p>
+      <p>On the intel side I track active <strong>Android malware campaigns</strong> targeting
+      UPI payment infrastructure, extracting IOCs and profiling threat actor TTPs via
+      static and dynamic analysis in isolated VM environments.</p>
+
+      <!-- Kali Linux Logo Card -->
+      <div class="kali-card" style="margin-top:2rem">
+        <img
+          src="https://www.kali.org/images/kali-dragon-icon.svg"
+          alt="Kali Linux"
+          class="kali-logo-img"
+          onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/2/2b/Kali-dragon-icon.svg'"
+        />
+        <div class="kali-card-label">Primary OS</div>
+        <div class="kali-card-val">Kali Linux</div>
+      </div>
+    </div>
+    <div>
+      <div class="metas">
+        <div class="mi"><div class="mn">HTB</div><div class="ml">HackTheBox<br>Pro Hacker</div></div>
+        <div class="mi"><div class="mn">2x</div><div class="ml">RedFox CTF<br>Participant</div></div>
+        <div class="mi"><div class="mn">ARM</div><div class="ml">Native Binary<br>Analysis</div></div>
+        <div class="mi"><div class="mn">0</div><div class="ml">Protections<br>Left Standing</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SKILLS ══ -->
+<div class="section reveal" id="skills">
+  <div class="kk">02 — skills</div>
+  <h2 class="sh">Core<br><em>Disciplines</em></h2>
+  <div class="sg">
+    <div class="sp">
+      <div class="sp-h">mobile security</div>
+      <div class="si">Android App Pentesting</div>
+      <div class="si">iOS Binary Analysis</div>
+      <div class="si">SSL Pinning Bypass</div>
+      <div class="si">Root Detection Bypass</div>
+      <div class="si">APK Reverse Engineering</div>
+      <div class="si">Frida Runtime Hooking</div>
+    </div>
+    <div class="sp">
+      <div class="sp-h">threat intelligence</div>
+      <div class="si">Android Malware Analysis</div>
+      <div class="si">UPI Fraud Threat Tracking</div>
+      <div class="si">Static &amp; Dynamic Analysis</div>
+      <div class="si">IOC Extraction</div>
+      <div class="si">TTP Profiling</div>
+      <div class="si">VM-Based Sandboxing</div>
+    </div>
+    <div class="sp">
+      <div class="sp-h">offensive security</div>
+      <div class="si">Web App Pentesting</div>
+      <div class="si">Network Interception</div>
+      <div class="si">Privilege Escalation</div>
+      <div class="si">Recon &amp; OSINT</div>
+      <div class="si">Exploit Development</div>
+      <div class="si">CTF Competition Play</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HTB ══ -->
+<div class="section reveal" id="htb">
+  <div class="kk">03 — hackthebox</div>
+  <h2 class="sh">Ranked.<br><em>Proven.</em></h2>
+  <div class="htbg">
+    <div class="htb-l">
+      <div>
+        <div class="htb-rk">Pro<br>Hacker</div>
+        <div class="htb-rs">// current rank</div>
+      </div>
+      <svg class="htb-hex-wrap" viewBox="0 0 80 92" width="70" height="82">
+        <polygon points="40,4 76,22 76,70 40,88 4,70 4,22" fill="none" stroke="rgba(168,85,247,0.25)" stroke-width="1.5"/>
+        <polygon points="40,14 66,28 66,64 40,78 14,64 14,28" fill="none" stroke="rgba(168,85,247,0.1)" stroke-width="1"/>
+        <text x="40" y="50" text-anchor="middle" dominant-baseline="middle"
+          font-family="'Oxanium',sans-serif" font-size="13" font-weight="700"
+          fill="#a855f7" letter-spacing="2">HTB</text>
+      </svg>
+    </div>
+    <div class="htb-r">
+      <p class="htb-p">Achieved <strong>Pro Hacker</strong> status on HackTheBox through consistent machine completions and challenge solves across Linux and Windows environments. Focused on web exploitation, binary analysis, and creative privilege escalation paths.</p>
+      <div class="htags">
+        <div class="htag">web exploitation</div>
+        <div class="htag">binary analysis</div>
+        <div class="htag">linux privesc</div>
+        <div class="htag">windows privesc</div>
+        <div class="htag">active directory</div>
+      </div>
+      <div class="htb-st">
+        <div><div class="hstv" style="background:linear-gradient(120deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Pro</div><div class="hstl">Tier</div></div>
+        <div><div class="hstv">HTB</div><div class="hstl">Platform</div></div>
+        <div><div class="hstv" style="color:var(--cyan)">Live</div><div class="hstl">Status</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CTF ══ -->
+<div class="section reveal" id="ctf">
+  <div class="kk">04 — ctf competitions</div>
+  <h2 class="sh">Flagged.<br><em>Captured.</em></h2>
+  <div class="ctfg">
+    <div class="cc">
+      <div class="cc-bg">25</div>
+      <div class="cc-k">// 2025</div>
+      <div class="cc-n">RedFox CTF</div>
+      <div class="cc-chips">
+        <span class="chip">web</span><span class="chip">reversing</span>
+        <span class="chip">forensics</span><span class="chip">pwn</span>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="cc-bg">26</div>
+      <div class="cc-k">// 2026</div>
+      <div class="cc-n">RedFox CTF</div>
+      <div class="cc-chips">
+        <span class="chip">mobile</span><span class="chip">crypto</span>
+        <span class="chip">web</span><span class="chip">osint</span>
+      </div>
+    </div>
+  </div>
+  <div class="ctf-note">
+    <div class="cn-tag">// philosophy</div>
+    <div class="cn-txt">CTF challenges are the closest thing to real offensive security under pressure. Each flag is a proof — a new attack surface, a new technique, a new mindset sharpened.</div>
+  </div>
+</div>
+
+<!-- ══ 3D ARSENAL ══ -->
+<section id="arsenal">
+  <div class="ars-in">
+    <div class="kk reveal">05 — arsenal</div>
+    <h2 class="sh reveal">The <em>Toolset.</em></h2>
+    <canvas id="a-canvas"></canvas>
+    <p class="a-hint">// drag to rotate &nbsp;·&nbsp; hover to inspect</p>
   </div>
 </section>
 
-<!-- ABOUT -->
-<div class="section" id="about">
-  <div class="s-label reveal">01 &nbsp;—&nbsp; About</div>
-  <h2 class="s-title reveal">Breaking what<br>others trust <em>blindly.</em></h2>
-  <div class="about-layout">
-    <div class="about-body reveal">
-      <p>
-        I operate as <em>Z0RO</em> — a mobile security researcher specializing in
-        <strong>Android & iOS application security</strong>, runtime manipulation,
-        and mobile threat intelligence.
-      </p>
-      <p>
-        My lab environment runs a rooted <strong>POCO device on LineageOS + Kitsune Magisk</strong>
-        alongside a jailbroken iPhone — giving me full control to instrument and dissect
-        any target application at the native layer using <em>Frida</em>.
-      </p>
-      <p>
-        On the threat intel side, I track active <strong>Android malware campaigns</strong>
-        targeting UPI payment infrastructure, analyzing behavior, extracting indicators,
-        and profiling threat actor TTPs.
-      </p>
-    </div>
-    <div class="about-stats reveal">
-      <div class="stat-row">
-        <div class="stat-n">HTB</div>
-        <div class="stat-l">Pro Hacker<br>Rank</div>
-      </div>
-      <div class="stat-row">
-        <div class="stat-n">2×</div>
-        <div class="stat-l">RedFox CTF<br>Competitor</div>
-      </div>
-      <div class="stat-row">
-        <div class="stat-n">ARM</div>
-        <div class="stat-l">Native Binary<br>Analysis</div>
-      </div>
-      <div class="stat-row">
-        <div class="stat-n">0</div>
-        <div class="stat-l">Defenses<br>Left Standing</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- SKILLS -->
-<div class="section" id="skills">
-  <div class="s-label reveal">02 &nbsp;—&nbsp; Skills</div>
-  <h2 class="s-title reveal">Core <em>competencies.</em></h2>
-  <div class="skill-cols reveal">
-    <div class="skill-col">
-      <div class="skill-col-head">Mobile Security</div>
-      <div class="skill-item">Android App Pentesting</div>
-      <div class="skill-item">iOS Binary Analysis</div>
-      <div class="skill-item">SSL Pinning Bypass</div>
-      <div class="skill-item">Root Detection Bypass</div>
-      <div class="skill-item">APK Reverse Engineering</div>
-      <div class="skill-item">Frida Runtime Hooking</div>
-    </div>
-    <div class="skill-col">
-      <div class="skill-col-head">Threat Intelligence</div>
-      <div class="skill-item">Android Malware Analysis</div>
-      <div class="skill-item">UPI Fraud Threat Tracking</div>
-      <div class="skill-item">Static & Dynamic Analysis</div>
-      <div class="skill-item">IOC Extraction</div>
-      <div class="skill-item">TTP Profiling</div>
-      <div class="skill-item">VM-Based Sandboxing</div>
-    </div>
-    <div class="skill-col">
-      <div class="skill-col-head">Offensive Security</div>
-      <div class="skill-item">Web Application Pentesting</div>
-      <div class="skill-item">Network Interception</div>
-      <div class="skill-item">Privilege Escalation</div>
-      <div class="skill-item">Recon & OSINT</div>
-      <div class="skill-item">Exploit Development</div>
-      <div class="skill-item">CTF Competition Play</div>
-    </div>
-  </div>
-</div>
-
-<!-- HTB -->
-<div class="section" id="htb">
-  <div class="s-label reveal">03 &nbsp;—&nbsp; HackTheBox</div>
-  <h2 class="s-title reveal">Ranked. <em>Proven.</em></h2>
-  <div class="htb-wrap reveal">
-    <div class="htb-left">
-      <div>
-        <div class="htb-platform-tag">HackTheBox Platform</div>
-        <div class="htb-rank-display">Pro<br>Hacker</div>
-        <div class="htb-rank-sub">Current Rank</div>
-      </div>
-      <div class="htb-orb">HTB</div>
-    </div>
-    <div class="htb-right">
-      <p style="font-size:0.95rem;color:var(--muted);line-height:1.85;font-weight:300;">
-        Achieved <strong style="color:var(--white)">Pro Hacker</strong> status on HackTheBox through consistent machine completions, challenge solves, and hands-on exploitation across Linux and Windows targets.
-        Specializing in web exploitation, binary analysis, and privilege escalation paths.
-      </p>
-      <div class="htb-detail">
-        <div class="htb-detail-l">Platform</div>
-        <div class="htb-detail-v">HackTheBox</div>
-      </div>
-      <div class="htb-detail">
-        <div class="htb-detail-l">Status</div>
-        <div class="htb-detail-v" style="color:#a8d97e">Active</div>
-      </div>
-      <div class="htb-detail">
-        <div class="htb-detail-l">Tier</div>
-        <div class="htb-detail-v">Pro Hacker</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- CTF -->
-<div class="section" id="ctf">
-  <div class="s-label reveal">04 &nbsp;—&nbsp; CTF Competitions</div>
-  <h2 class="s-title reveal">Competing. <em>Capturing.</em></h2>
-  <div class="ctf-list">
-    <div class="ctf-entry reveal" data-year="2025">
-      <div class="ctf-flag">2025</div>
-      <div class="ctf-title">RedFox CTF</div>
-      <div class="ctf-chips">
-        <span class="chip">Web</span>
-        <span class="chip">Reversing</span>
-        <span class="chip">Forensics</span>
-        <span class="chip">Pwn</span>
-      </div>
-    </div>
-    <div class="ctf-entry reveal" data-year="2026">
-      <div class="ctf-flag">2026</div>
-      <div class="ctf-title">RedFox CTF</div>
-      <div class="ctf-chips">
-        <span class="chip">Mobile</span>
-        <span class="chip">Crypto</span>
-        <span class="chip">Web</span>
-        <span class="chip">OSINT</span>
-      </div>
-    </div>
-    <div class="ctf-wide reveal">
-      <div class="ctf-wide-label">Philosophy</div>
-      <div class="ctf-wide-text">
-        CTF competitions translate directly to real-world offensive skills. Each challenge
-        is a new attack surface to understand, exploit, and learn from — sharpening
-        the instincts that matter in professional research.
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ARSENAL -->
-<div class="section" id="arsenal">
-  <div class="s-label reveal">05 &nbsp;—&nbsp; Arsenal</div>
-  <h2 class="s-title reveal">Tools of the <em>trade.</em></h2>
-  <div class="arsenal-wrap reveal">
-    <div class="tool"><div class="tool-name">Frida</div><div class="tool-cat">Dynamic Instrumentation</div></div>
-    <div class="tool"><div class="tool-name">Objection</div><div class="tool-cat">Mobile Runtime</div></div>
-    <div class="tool"><div class="tool-name">Burp Suite</div><div class="tool-cat">Proxy / Web</div></div>
-    <div class="tool"><div class="tool-name">JADX</div><div class="tool-cat">APK Decompiler</div></div>
-    <div class="tool"><div class="tool-name">Metasploit</div><div class="tool-cat">Exploitation</div></div>
-    <div class="tool"><div class="tool-name">Magisk</div><div class="tool-cat">Root Management</div></div>
-    <div class="tool"><div class="tool-name">jtool2</div><div class="tool-cat">iOS Binary</div></div>
-    <div class="tool"><div class="tool-name">ADB</div><div class="tool-cat">Android Debug</div></div>
-    <div class="tool"><div class="tool-name">Subfinder</div><div class="tool-cat">Recon</div></div>
-    <div class="tool"><div class="tool-name">Nuclei</div><div class="tool-cat">Vuln Scanner</div></div>
-    <div class="tool"><div class="tool-name">Ghidra</div><div class="tool-cat">Reverse Engineering</div></div>
-    <div class="tool"><div class="tool-name">Wireshark</div><div class="tool-cat">Traffic Analysis</div></div>
-    <div class="tool"><div class="tool-name">Nmap</div><div class="tool-cat">Network Scan</div></div>
-    <div class="tool"><div class="tool-name">Flare-VM</div><div class="tool-cat">Malware Lab</div></div>
-    <div class="tool"><div class="tool-name">VirtualBox</div><div class="tool-cat">Virtualization</div></div>
-    <div class="tool"><div class="tool-name">LineageOS</div><div class="tool-cat">Custom ROM</div></div>
-  </div>
-</div>
-
 <footer>
-  <div class="footer-name">Z0RO</div>
-  <div class="footer-r">
-    <div><span>// THREAT RESEARCHER</span></div>
-    <div>Mobile · Android · iOS · CTF</div>
-    <div style="margin-top:0.2rem;opacity:0.4">Stay curious. Stay dangerous.</div>
+  <div class="ft-logo">Z0RO</div>
+  <div class="ft-r">
+    <div><span>// threat_researcher</span></div>
+    <div>mobile · android · ios · ctf</div>
+    <div style="opacity:.3;margin-top:.2rem">stay curious. stay dangerous.</div>
   </div>
 </footer>
 
 <script>
-// Cursor
-const cur = document.getElementById('cur');
-const ring = document.getElementById('curRing');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cur.style.left = mx+'px'; cur.style.top = my+'px';
-});
-(function animRing(){
-  rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12;
-  ring.style.left=rx+'px'; ring.style.top=ry+'px';
-  requestAnimationFrame(animRing);
-})();
-
-// Ticker
-const lines = [
-  'frida -U -f com.target.app --no-pause',
-  'objection -g com.ril.roams explore',
-  'adb shell su -c "cat /proc/mounts"',
-  'jadx -d output/ target.apk',
-  'frida-server --listen 0.0.0.0:27042',
-  'jtool2 --analyze -arch arm64 binary',
-];
+/* ══ TYPING ══ */
+const cmds=['frida -U -f com.ril.roams --no-pause','objection -g com.target.app explore','adb shell su -c "id && whoami"','jadx -d ./output target.apk','frida-server --listen 0.0.0.0:27042','jtool2 --analyze -arch arm64 ./binary','nuclei -u https://target.com -t cves/'];
 let li=0,ci=0,del=false;
-const el=document.getElementById('tickerText');
-function tick(){
-  const s=lines[li];
-  if(!del){
-    el.textContent=s.slice(0,++ci);
-    if(ci===s.length){del=true;setTimeout(tick,1800);return;}
-    setTimeout(tick,55);
-  } else {
-    el.textContent=s.slice(0,--ci);
-    if(ci===0){del=false;li=(li+1)%lines.length;setTimeout(tick,350);return;}
-    setTimeout(tick,22);
-  }
-}
+const et=document.getElementById('cmd-t');
+function tick(){ const s=cmds[li]; if(!del){ et.textContent=s.slice(0,++ci); if(ci===s.length){del=true;setTimeout(tick,2000);return;} setTimeout(tick,50); } else { et.textContent=s.slice(0,--ci); if(ci===0){del=false;li=(li+1)%cmds.length;setTimeout(tick,350);return;} setTimeout(tick,18); } }
 setTimeout(tick,1500);
 
-// Reveal
-const els = document.querySelectorAll('.reveal');
-const io = new IntersectionObserver(entries=>{
-  entries.forEach((e,i)=>{
-    if(e.isIntersecting){
-      setTimeout(()=>e.target.classList.add('in'), i*90);
-      io.unobserve(e.target);
-    }
+/* ══ HERO BG ══ */
+(function(){
+  const c=document.getElementById('hero-bg');
+  const R=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});
+  R.setPixelRatio(Math.min(devicePixelRatio,2)); R.setSize(innerWidth,innerHeight);
+  const S=new THREE.Scene();
+  const CAM=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,200);
+  CAM.position.set(0,0,28);
+  S.add(new THREE.AmbientLight(0x080a1a,4));
+  const dl=new THREE.DirectionalLight(0x00d4ff,2); dl.position.set(6,8,6); S.add(dl);
+  const pl=new THREE.PointLight(0xa855f7,2,50); pl.position.set(-10,4,8); S.add(pl);
+  const pg=new THREE.BufferGeometry();
+  const pa=new Float32Array(900*3); for(let i=0;i<pa.length;i++) pa[i]=(Math.random()-.5)*100;
+  pg.setAttribute('position',new THREE.BufferAttribute(pa,3));
+  S.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x0d1030,size:.07,transparent:true,opacity:.9})));
+  const GS=[new THREE.IcosahedronGeometry(1.1,0),new THREE.OctahedronGeometry(1.2),new THREE.TorusKnotGeometry(.8,.25,60,8),new THREE.DodecahedronGeometry(1),new THREE.TetrahedronGeometry(1.1),new THREE.TorusGeometry(.9,.3,8,16),new THREE.BoxGeometry(1.3,1.3,1.3),new THREE.ConeGeometry(.85,1.7,6)];
+  const WC=[0x00d4ff,0xa855f7,0x00a8cc,0x7c3aed,0x00d4ff,0xa855f7,0x00a8cc,0x7c3aed];
+  const FL=GS.map((g,i)=>{
+    const m=new THREE.Mesh(g,new THREE.MeshPhongMaterial({color:WC[i],wireframe:true,transparent:true,opacity:.16}));
+    const ang=(i/GS.length)*Math.PI*2,r=14+Math.random()*5;
+    m.position.set(Math.cos(ang)*r,(Math.random()-.5)*12,(Math.random()-.5)*8-4);
+    m.rotation.set(Math.random()*6,Math.random()*6,Math.random()*6); S.add(m);
+    return{m,sp:.003+Math.random()*.005};
   });
-},{threshold:0.1});
-els.forEach(e=>io.observe(e));
+  let t=0;
+  (function loop(){ requestAnimationFrame(loop); t+=.007; FL.forEach((f,i)=>{ f.m.rotation.x+=f.sp; f.m.rotation.y+=f.sp*.7; f.m.position.y+=Math.sin(t+i)*.004; }); R.render(S,CAM); })();
+  window.addEventListener('resize',()=>{ CAM.aspect=innerWidth/innerHeight; CAM.updateProjectionMatrix(); R.setSize(innerWidth,innerHeight); });
+})();
+
+/* ══ ARSENAL 3D — 4 tools ══ */
+(function(){
+  const canvas=document.getElementById('a-canvas');
+  const W=canvas.parentElement.clientWidth, H=540;
+  canvas.width=W; canvas.height=H;
+  const R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  R.setPixelRatio(Math.min(devicePixelRatio,2)); R.setSize(W,H); R.shadowMap.enabled=true;
+
+  const S=new THREE.Scene();
+  const CAM=new THREE.PerspectiveCamera(52,W/H,.1,200);
+  CAM.position.set(0,5,18); CAM.lookAt(0,0,0);
+
+  S.add(new THREE.AmbientLight(0x05080f,5));
+  const kl=new THREE.DirectionalLight(0x00d4ff,5); kl.position.set(8,12,8); kl.castShadow=true; S.add(kl);
+  const fl=new THREE.PointLight(0xa855f7,4,45); fl.position.set(-10,5,6); S.add(fl);
+  const bl=new THREE.PointLight(0x00a8cc,2,30); bl.position.set(2,-6,-8); S.add(bl);
+
+  const grid=new THREE.GridHelper(50,32,0x0d1030,0x080a1a); grid.position.y=-5; S.add(grid);
+
+  const tools=[
+    { name:'BURP SUITE', geo:new THREE.IcosahedronGeometry(1.4,1),      col:0xff6633, em:0x3a1000, desc:'Web Proxy' },
+    { name:'METASPLOIT', geo:new THREE.DodecahedronGeometry(1.4),        col:0xef4444, em:0x3a0000, desc:'Exploitation Framework' },
+    { name:'WIRESHARK',  geo:new THREE.TorusGeometry(1.1,.42,14,32),     col:0x00d4ff, em:0x001a35, desc:'Traffic Analysis' },
+    { name:'NMAP',       geo:new THREE.SphereGeometry(1.3,10,10),        col:0xa855f7, em:0x200030, desc:'Network Scanner' },
+  ];
+
+  const N=tools.length, spacing=6.2, startX=-((N-1)*spacing)/2;
+  const scaleUp=new THREE.Vector3(1.22,1.22,1.22), scaleNorm=new THREE.Vector3(1,1,1);
+
+  // Tooltip
+  const tip=document.createElement('div');
+  Object.assign(tip.style,{position:'fixed',pointerEvents:'none',zIndex:'9990',fontFamily:"'JetBrains Mono',monospace",fontSize:'.6rem',letterSpacing:'2px',textTransform:'uppercase',color:'var(--cyan)',background:'rgba(7,8,15,0.92)',border:'1px solid rgba(0,212,255,.2)',padding:'.45rem 1rem',opacity:'0',transition:'opacity .2s',whiteSpace:'nowrap'});
+  document.body.appendChild(tip);
+
+  const meshData=tools.map((t,i)=>{
+    const mat=new THREE.MeshPhongMaterial({color:t.col,emissive:t.em,shininess:120});
+    const mesh=new THREE.Mesh(t.geo,mat);
+    mesh.position.set(startX+i*spacing,0,0); mesh.castShadow=true; S.add(mesh);
+
+    const lc=document.createElement('canvas'); lc.width=340; lc.height=72;
+    const lx=lc.getContext('2d');
+    lx.font='700 20px "Oxanium",sans-serif'; lx.fillStyle='rgba(240,244,255,0.85)'; lx.textAlign='center'; lx.fillText(t.name,170,30);
+    lx.font='12px "JetBrains Mono",monospace'; lx.fillStyle='rgba(90,98,128,0.85)'; lx.fillText(t.desc,170,52);
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(lc),transparent:true,opacity:.9}));
+    sp.scale.set(3.8,.82,1); sp.position.set(startX+i*spacing,-3.3,0); S.add(sp);
+
+    return{mesh,mat,sp,baseCol:t.col,emCol:t.em,ox:startX+i*spacing,name:t.name,desc:t.desc};
+  });
+
+  let rotY=0,targetRotY=0,isDrag=false,prevX=0;
+  const ray=new THREE.Raycaster(), mouse2=new THREE.Vector2();
+
+  canvas.addEventListener('mousedown',e=>{isDrag=true;prevX=e.clientX;canvas.style.cursor='grabbing'});
+  window.addEventListener('mouseup',()=>{isDrag=false;canvas.style.cursor='default'});
+  window.addEventListener('mousemove',e=>{
+    if(isDrag){targetRotY+=(e.clientX-prevX)*.009;prevX=e.clientX;}
+    const rc=canvas.getBoundingClientRect();
+    mouse2.x=((e.clientX-rc.left)/rc.width)*2-1;
+    mouse2.y=-((e.clientY-rc.top)/rc.height)*2+1;
+    tip.style.left=(e.clientX+20)+'px'; tip.style.top=(e.clientY-10)+'px';
+  });
+
+  let t=0;
+  (function loop(){
+    requestAnimationFrame(loop); t+=.013;
+    rotY+=(targetRotY-rotY)*.07;
+    ray.setFromCamera(mouse2,CAM);
+    const hits=ray.intersectObjects(meshData.map(d=>d.mesh));
+    const hovered=hits.length?hits[0].object:null;
+    meshData.forEach((d,i)=>{
+      d.mesh.position.x=d.ox*Math.cos(rotY);
+      d.mesh.position.z=d.ox*Math.sin(rotY);
+      d.mesh.position.y=Math.sin(t+i*.9)*.5;
+      d.sp.position.x=d.mesh.position.x;
+      d.sp.position.z=d.mesh.position.z;
+      d.sp.position.y=d.mesh.position.y-3.1;
+      d.mesh.rotation.x+=.009; d.mesh.rotation.y+=.013;
+      if(hovered===d.mesh){
+        d.mat.emissive.setHex(d.baseCol); d.mat.emissiveIntensity=.5;
+        d.mesh.scale.lerp(scaleUp,.12);
+        tip.innerHTML='<span style="color:#00d4ff">// </span>'+d.name+'<span style="color:#5a6280"> — '+d.desc+'</span>';
+        tip.style.opacity='1';
+      } else {
+        d.mat.emissive.setHex(d.emCol); d.mat.emissiveIntensity=1;
+        d.mesh.scale.lerp(scaleNorm,.10);
+        if(!hovered) tip.style.opacity='0';
+      }
+    });
+    R.render(S,CAM);
+  })();
+
+  window.addEventListener('resize',()=>{ const nW=canvas.parentElement.clientWidth; CAM.aspect=nW/H; CAM.updateProjectionMatrix(); R.setSize(nW,H); });
+})();
+
+/* ══ REVEAL ══ */
+const revEls=document.querySelectorAll('.reveal');
+const io=new IntersectionObserver(entries=>entries.forEach((e,i)=>{ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('in'),i*80); io.unobserve(e.target); } }),{threshold:.08});
+revEls.forEach(e=>io.observe(e));
 </script>
 </body>
 </html>
